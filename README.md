@@ -1,6 +1,6 @@
-# ts-play
+# expenses-currency-convert
 
-Basic TS config(s).
+Read in an **Iexpense lite** generated csv file and convert all expenses from one currency to another and save as new csv.
 
 ## setup
 
