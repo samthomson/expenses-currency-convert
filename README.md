@@ -4,7 +4,11 @@ Read in an **Iexpense lite** generated csv file and convert all expenses from on
 
 ## setup
 
+create env file: `cp .env.sample .env`
+
 `docker-compose build`
+
+install yarn deps: `docker-compose run app yarn`
 
 ## run
 

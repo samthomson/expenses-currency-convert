@@ -4,3 +4,6 @@ services:
     build: ./
     volumes:
       - ./app:/app
+    environment:
+      - NEW_CURRENCY_MULTIPLIER=${NEW_CURRENCY_MULTIPLIER}
+      - NEW_CURRENCY_CODE=${NEW_CURRENCY_CODE}
