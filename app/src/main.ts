@@ -49,20 +49,42 @@ const convertExpenses = (inputExpenses: Expense[]): Expense[] => {
 			console.error('expense invalid', expense)
 		}
 
-		const exchangeRate = +NEW_CURRENCY_MULTIPLIER
+		const { Note: existingNote } = expense
 
-		const newAmount = originalAmount * exchangeRate
-
-		const conversionNote = `DKK: ${expense.Amount} DKK\nExchange rate: ${exchangeRate}\n`
-
-		const newNote = conversionNote + expense.Note
-		
-		return {
+		let newExpense = {
 			...expense,
-			Currency: NEW_CURRENCY_CODE,
-			Amount: newAmount.toFixed(2).toString().replace('.', ','),
-			Note: newNote
+			Currency: NEW_CURRENCY_CODE
 		}
+
+		// was it in euros already?
+		const noteParts = existingNote.split('\n')
+		if (noteParts?.[0].indexOf(`${NEW_CURRENCY_CODE}:`) > -1) {
+			// already in correct currency
+			const [_, eurExpense] = noteParts[0].replace(/\s/g, ' ').split(' ')
+			newExpense = {
+				...newExpense,
+				Amount: (+eurExpense.replace('.', '').replace(',', '.') * -1).toFixed(2).toString().replace('.', ',')
+			}
+		} else {
+			// not in correct currency, we must convert
+			const exchangeRate = +NEW_CURRENCY_MULTIPLIER
+
+			const newAmount = originalAmount * exchangeRate
+
+			const conversionNote = `DKK: ${expense.Amount} DKK\nExchange rate: ${exchangeRate}\n`
+
+			const newNote = conversionNote + existingNote
+
+			newExpense = {
+				...newExpense,
+				Amount: newAmount.toFixed(2).toString().replace('.', ','),
+				Note: newNote
+			}
+		}
+
+		
+		
+		return newExpense
 	})
 }
 
