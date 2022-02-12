@@ -1,7 +1,7 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import * as csv from 'csv-parser'
-import * as JSON2CSV from 'json-2-csv'
+import { Parser as Json2csvParser } from 'json2csv'
 
 type Expense = {
 	Date: string
@@ -49,24 +49,29 @@ const convertExpenses = (inputExpenses: Expense[]): Expense[] => {
 			console.error('expense invalid', expense)
 		}
 
-		const newAmount = originalAmount * +NEW_CURRENCY_MULTIPLIER
+		const exchangeRate = +NEW_CURRENCY_MULTIPLIER
 
+		const newAmount = originalAmount * exchangeRate
+
+		const conversionNote = `DKK: ${expense.Amount} DKK\nExchange rate: ${exchangeRate}\n`
+
+		const newNote = conversionNote + expense.Note
+		
 		return {
 			...expense,
 			Currency: NEW_CURRENCY_CODE,
-			Amount: newAmount.toFixed(2).toString()
+			Amount: newAmount.toFixed(2).toString().replace('.', ','),
+			Note: newNote
 		}
 	})
 }
 
 const saveExpensesToCSV = async (expenses: Expense[]) => {
-	
 
-	const csv = await JSON2CSV.json2csvAsync(expenses)
-
+	const json2csvParser = new Json2csvParser()
+	const csv = json2csvParser.parse(expenses)
 
 	fs.writeFileSync(path.resolve('/app/data/csvout.csv'), csv)
-
 }
 
 const main = async (): Promise<void> => {
@@ -83,7 +88,7 @@ const main = async (): Promise<void> => {
 
 	// convert all expense values and update used values
 	const convertedExpenses = convertExpenses(expenses)
-	console.log(convertedExpenses)
+	// console.log(convertedExpenses)
 
 	// save as new csv
 	saveExpensesToCSV(convertedExpenses)
